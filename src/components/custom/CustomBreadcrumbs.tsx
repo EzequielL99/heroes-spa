@@ -14,7 +14,7 @@ interface Props {
 
 export const CustomBreadcrumbs = ({ currentPage, breadcrumbs }: Props) => {
     return (
-        <Breadcrumb>
+        <Breadcrumb className="my-3">
             <BreadcrumbList>
                 {/* Home */}
                 <BreadcrumbItem>
