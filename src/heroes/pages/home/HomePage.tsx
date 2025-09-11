@@ -8,12 +8,15 @@ import { CustomBreadcrumbs } from "@/components/custom/CustomBreadcrumbs"
 // import { getHeroesByPageAction } from "@/heroes/actions/get-heroes-by-page.action"
 // import { useQuery } from "@tanstack/react-query"
 import { useSearchParams } from "react-router"
-import { useMemo } from "react"
+import { use, useMemo } from "react"
 import { useHeroSummary } from "@/heroes/hooks/useHeroSummary"
 import { usePaginatedHero } from "@/heroes/hooks/usePaginatedHero"
+import { FavoriteHeroContext } from "@/heroes/context/FavoriteHeroContext"
 
 export const HomePage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
+    const { favoriteCount, favorites } = use(FavoriteHeroContext);
+
     const activeTab = searchParams.get('tab') ?? 'all';
     const page = searchParams.get('page') ?? '1';
     const limit = searchParams.get('limit') ?? '6';
@@ -28,6 +31,8 @@ export const HomePage = () => {
     const { data: heroesResponse } = usePaginatedHero(+page, +limit, category);
 
     const { data: summary } = useHeroSummary();
+
+    if (!summary) return (<div>Cargando...</div>);
 
     return (
         <>
@@ -57,16 +62,18 @@ export const HomePage = () => {
                             prev.set('page', '1');
                             return prev;
                         })}
-                    >All Characters ({summary?.totalHeroes})</TabsTrigger>
+                    >All Characters ({summary.totalHeroes})</TabsTrigger>
                     <TabsTrigger
                         onClick={() => setSearchParams(prev => {
                             prev.set('tab', 'favorites');
+                            prev.set('category', 'villain');
+                            prev.set('page', '1');
                             return prev;
                         })}
                         value="favorites"
                         className="flex items-center gap-2"
                     >
-                        Favorites (3)
+                        Favorites ({favoriteCount})
                     </TabsTrigger>
                     <TabsTrigger
                         onClick={() => setSearchParams(prev => {
@@ -76,7 +83,7 @@ export const HomePage = () => {
                             return prev;
                         })}
                         value="heroes"
-                    >Heroes ({summary?.heroCount})</TabsTrigger>
+                    >Heroes ({summary.heroCount})</TabsTrigger>
                     <TabsTrigger
                         onClick={() => setSearchParams(prev => {
                             prev.set('tab', 'villains');
@@ -85,32 +92,31 @@ export const HomePage = () => {
                             return prev;
                         })}
                         value="villains"
-                    >Villains ({summary?.villainCount})</TabsTrigger>
+                    >Villains ({summary.villainCount})</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="all">
                     <h1>Todos</h1>
-                    {/* Character Grid */}
                     <HeroGrid heroes={heroesResponse?.heroes ?? []} />
                 </TabsContent>
                 <TabsContent value="favorites">
                     <h1>Favoritos</h1>
-                    {/* <HeroGrid /> */}
+                    <HeroGrid heroes={favorites ?? []} />
                 </TabsContent>
                 <TabsContent value="heroes">
                     <h1>Heroes</h1>
                     <HeroGrid heroes={heroesResponse?.heroes ?? []} />
-                    {/* <HeroGrid /> */}
                 </TabsContent>
                 <TabsContent value="villains">
                     <h1>Villanos</h1>
                     <HeroGrid heroes={heroesResponse?.heroes ?? []} />
-                    {/* <HeroGrid /> */}
                 </TabsContent>
             </Tabs>
 
             {/* Pagination */}
-            <CustomPagination totalPages={heroesResponse?.pages ?? 1} />
+            {selectedTab !== 'favorites' && (
+                <CustomPagination totalPages={heroesResponse?.pages ?? 1} />
+            )}
         </>
     )
 }

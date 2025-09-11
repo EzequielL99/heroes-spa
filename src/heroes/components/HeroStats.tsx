@@ -7,11 +7,15 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { HeroStatCard } from "./HeroStatCard"
 import { useHeroSummary } from "../hooks/useHeroSummary"
+import { use, useMemo } from "react"
+import { FavoriteHeroContext } from "../context/FavoriteHeroContext"
 
 
 export const HeroStats = () => {
-
+    const { favoriteCount } = use(FavoriteHeroContext);
     const { data: summary } = useHeroSummary();
+
+    const favoritePercentage = useMemo(() => ((favoriteCount * 100) / (summary ? summary.totalHeroes : 1)).toFixed(2), [favoriteCount, summary])
 
     return (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -19,7 +23,7 @@ export const HeroStats = () => {
                 title="Total de Personajes"
                 icon={<Users className="h-4 w-4 text-muted-foreground" />}
             >
-                <div className="text-2xl font-bold">16</div>
+                <div className="text-2xl font-bold">{summary?.totalHeroes}</div>
                 <div className="flex gap-1 mt-2">
                     <Badge variant="secondary" className="text-xs">
                         {summary?.heroCount} Heroes
@@ -34,8 +38,8 @@ export const HeroStats = () => {
                 title="Favoritos"
                 icon={<Heart className="h-4 w-4 text-muted-foreground" />}
             >
-                <div className="text-2xl font-bold text-red-600">3</div>
-                <p className="text-xs text-muted-foreground">18.8% of total</p>
+                <div className="text-2xl font-bold text-red-600">{favoriteCount}</div>
+                <p className="text-xs text-muted-foreground">{favoritePercentage}% of total</p>
             </HeroStatCard>
 
             <HeroStatCard

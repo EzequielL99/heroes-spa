@@ -1,11 +1,13 @@
 import { Heart, Eye, Zap, Brain, Gauge, Shield } from 'lucide-react'
-
+import { use } from 'react'
+import { useNavigate } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardContent } from '@/components/ui/card'
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
+
 import type { Hero } from '../types/hero.interface'
-import { useNavigate } from 'react-router'
+import { FavoriteHeroContext } from '../context/FavoriteHeroContext'
 
 interface Props {
     hero: Hero
@@ -15,6 +17,7 @@ const numberAsPercentage = (number: number): number => (number / 10) * 100;
 
 export const HeroGridCard = ({ hero }: Props) => {
     const navigate = useNavigate();
+    const { isFavorite, toggleFavorite } = use(FavoriteHeroContext);
 
     const handleClick = () => {
         navigate(`/hero/${hero.slug}`);
@@ -42,8 +45,15 @@ export const HeroGridCard = ({ hero }: Props) => {
                 <Badge className={`absolute top-3 right-3 text-xs ${hero.universe === 'DC' ? 'bg-blue-600' : 'bg-red-600'} text-white`}>{hero.universe}</Badge>
 
                 {/* Favorite button */}
-                <Button size="sm" variant="ghost" className="absolute bottom-3 right-3 bg-white/90 hover:bg-white">
-                    <Heart className="h-4 w-4 fill-red-500 text-red-500" />
+                <Button
+                    onClick={() => toggleFavorite(hero)}
+                    size="sm"
+                    variant="ghost"
+                    className="absolute bottom-3 right-3 bg-white/90 hover:bg-white"
+                >
+                    <Heart className={`h-4 w-4 ${isFavorite(hero) ? 'fill-red-500 text-red-500' : 'text-gray-500'
+                        }`}
+                    />
                 </Button>
 
                 {/* View details button */}
