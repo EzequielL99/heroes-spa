@@ -2,9 +2,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import SearchPage from "./SearchPage";
+import SearchPage from "./search/SearchPage";
 import { searchHeroAction } from "@/heroes/actions/search-hero.action";
 import type { Hero } from "@/heroes/types/hero.interface";
+
+vi.mock('./ui/SearchControls', () => ({
+    SearchControls: () => <div data-testid="search-controls"></div>
+}))
 
 vi.mock('@/heroes/components/HeroGrid', () => ({
     HeroGrid: ({ heroes }: { heroes: Hero[] }) => (<div data-testid="hero-grid">
@@ -74,8 +78,8 @@ describe('Search Page', () => {
 
     test('should render HeroGrid with search results', async () => {
         const mockHeroes = [
-            {id: '1', name: 'Clark Kent'} as unknown as Hero,
-            {id: '2', name: 'Bruce Wayne'} as unknown as Hero,
+            { id: '1', name: 'Clark Kent' } as unknown as Hero,
+            { id: '2', name: 'Bruce Wayne' } as unknown as Hero,
         ];
 
         mockSearchHeroesAction.mockResolvedValue(mockHeroes);
